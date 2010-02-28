@@ -1,0 +1,154 @@
+" MultiWordComplete.vim Insert mode completion that completes a sequence of
+" words based on anchor characters for each word. 
+"
+" DESCRIPTION:
+"   The built-in insert mode completion completes single words, and one can copy
+"   the words following the previous expansion one-by-one. (But that is
+"   cumbersome and doesn't scale when there are many alternatives.) 
+"   This plugin offers completion of sequences of words, i.e. everything
+"   separated by whitespace, non-keyword characters or the start / end of line,
+"   based on the typed first (keyword) character of each word. With this, one
+"   can quickly complete entire phrases; for example, "imc" completes to "insert
+"   mode completion", and "/ulb" completes to "/usr/local/bin". 
+"
+" USAGE:
+" i_CTRL-X_w		Find matches for multiple words which begin with the
+"			typed keyword characters in front of the cursor. 
+"			
+"   In insert mode, type all initial letters of the requested phrase, and invoke
+"   the multi-word completion via CTRL-W w. You can then search forward and
+"   backward via CTRL-N / CTRL-P, as usual. 
+"
+" INSTALLATION:
+" DEPENDENCIES:
+"   - CompleteHelper.vim autoload script. 
+"
+" CONFIGURATION:
+"   Analoguous to the 'complete' option, you can specify which buffers will be
+"   scanned for completion candidates. Currently, only '.' (current buffer) and
+"   'w' (buffers from other windows) are supported. >
+"	let g:MultiWordComplete_complete string = '.,w'
+"   The global setting can be overridden for a particular buffer
+"   (b:MultiWordComplete_complete). 
+"   
+" INTEGRATION:
+" LIMITATIONS:
+" ASSUMPTIONS:
+" KNOWN PROBLEMS:
+" TODO:
+"   - Allow '.' wildcard for a single and '*' for multiple words. 
+"   - Case?
+"
+" Copyright: (C) 2010 by Ingo Karkat
+"   The VIM LICENSE applies to this script; see ':help copyright'. 
+"
+" Maintainer:	Ingo Karkat <ingo@karkat.de>
+"
+" REVISION	DATE		REMARKS 
+"	001	26-Feb-2010	file creation
+
+" Avoid installing twice or when in unsupported Vim version. 
+if exists('g:loaded_MultiWordComplete') || (v:version < 700)
+    finish
+endif
+let g:loaded_MultiWordComplete = 1
+
+if ! exists('g:MultiWordComplete_complete')
+    let g:MultiWordComplete_complete = '.,w'
+endif
+
+function! s:GetCompleteOption()
+    return (exists('b:MultiWordComplete_complete') ? b:MultiWordComplete_complete : g:MultiWordComplete_complete)
+endfunction
+
+function! s:BuildRegexp( base )
+    " Each alphabetic character is an anchor for the beginning of a
+    " CamelCaseWord or underscore_word. 
+    " All other (keyword) characters must just match at that position. 
+    let l:anchors = map(split(a:base, '\zs'), 'escape(v:val, "\\")')
+    let l:alphabeticAnchors = filter(copy(l:anchors), 's:IsAlpha(v:val)')
+
+    let [l:strictRegexpFragments, l:relaxedRegexpFragments] = s:BuildAlphabeticRegexpFragments(l:alphabeticAnchors)
+
+    " Assemble all regexp fragments together to build the full regexp. 
+    " There is a strict regexp which is tried first and a relaxed regexp to fall
+    " back on. 
+    " If an anchor is alphabetic, include the built regexp fragment. 
+    " If an anchor is a keyword character, just match that character. 
+    let l:strictRegexp = ''
+    let l:relaxedRegexp = ''
+    for l:anchor in l:anchors
+	if s:IsAlpha(l:anchor)
+	    if len(l:strictRegexpFragments) > 0
+		let l:strictRegexp  .= remove(l:strictRegexpFragments, 0)
+	    endif
+	    if len(l:relaxedRegexpFragments) > 0
+		let l:relaxedRegexp .= remove(l:relaxedRegexpFragments, 0)
+	    endif
+"****D echomsg '####' l:anchor
+	else
+	    let [l:strictRegexpFragment, l:relaxedRegexpFragment] = s:BuildKeywordRegexpFragment(l:anchor)
+	    let l:strictRegexp  .= l:strictRegexpFragment
+	    let l:relaxedRegexp .= l:relaxedRegexpFragment
+"****D echomsg '####' '"'. l:anchor . '"'
+	endif
+    endfor
+
+    " Each alphabetic anchor results in one fragment; there still is one
+    " fragment to match any CamelCaseWords and underscore_words when there are
+    " no alphabetic anchors. 
+    if len(l:alphabeticAnchors) == 0
+	if len(l:strictRegexpFragments) > 0
+	    let l:strictRegexp  .= remove(l:strictRegexpFragments, 0)
+	endif
+	if len(l:relaxedRegexpFragments) > 0
+	    let l:relaxedRegexp .= remove(l:relaxedRegexpFragments, 0)
+	endif
+    endif
+
+"****D return [s:WholeWordMatch(l:strictRegexp), '']
+    " With no keyword anchors and no or only one alphabetic anchor, the relaxed
+    " regexp may be identical with the strict one. In this case, omit the
+    " relaxed regexp to avoid searching for (no existing) matches twice. 
+    return [s:WholeWordMatch(l:strictRegexp), (l:relaxedRegexp ==# l:strictRegexp ? '' : s:WholeWordMatch(l:relaxedRegexp))]
+endfunction
+function! MultiWordComplete#MultiWordComplete( findstart, base )
+    if a:findstart
+	" Locate the start of the keyword that represents the initial letters. 
+	let l:startCol = searchpos('\k*\%#', 'bn', line('.'))[1]
+	if l:startCol == 0
+	    let l:startCol = col('.')
+	endif
+	return l:startCol - 1 " Return byte index, not column. 
+    else
+	let [l:strictRegexp, l:relaxedRegexp] = s:BuildRegexp(a:base)
+"****D let [g:sr, g:rr] = [l:strictRegexp, l:relaxedRegexp]
+	if empty(l:strictRegexp) | throw 'ASSERT: At least a strict regexp should have been built.' | endif
+
+	" Find keywords matching the prepared regexp. Use the relaxed regexp
+	" when the strict one doesn't yield any matches. 
+	let l:matches = []
+"****D echomsg '****strict ' l:strictRegexp
+	call CompleteHelper#FindMatches( l:matches, l:strictRegexp, {'complete': s:GetCompleteOption()} )
+	if empty(l:matches) && ! empty(l:relaxedRegexp)
+"****D echomsg '****relaxed' l:relaxedRegexp
+	    echohl ModeMsg
+	    echo '-- User defined completion (^U^N^P) -- Relaxed search...'
+	    echohl None
+	    call CompleteHelper#FindMatches( l:matches, l:relaxedRegexp, {'complete': s:GetCompleteOption()} )
+	endif
+	let s:isNoMatches = empty(l:matches)
+	return l:matches
+    endif
+endfunction
+
+function! s:MultiWordCompleteExpr()
+    set completefunc=MultiWordComplete#MultiWordComplete
+    return "\<C-x>\<C-u>"
+endfunction
+inoremap <script> <expr> <Plug>MultiWordComplete <SID>MultiWordCompleteExpr()
+if ! hasmapto('<Plug>MultiWordComplete', 'i')
+    imap <C-x>w <Plug>MultiWordComplete
+endif
+
+" vim: set sts=4 sw=4 noexpandtab ff=unix fdm=syntax :
