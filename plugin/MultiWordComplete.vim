@@ -7,13 +7,24 @@
 "   cumbersome and doesn't scale when there are many alternatives.) 
 "   This plugin offers completion of sequences of words, i.e. everything
 "   separated by whitespace, non-keyword characters or the start / end of line,
-"   based on the typed first (keyword) character of each word. With this, one
-"   can quickly complete entire phrases; for example, "imc" completes to "insert
-"   mode completion", and "/ulb" completes to "/usr/local/bin". 
+"   based on the typed first letter of each word. With this, one can quickly
+"   complete entire phrases; for example, "imc" completes to "insert mode
+"   completion", and "/ulb" completes to "/usr/local/bin". 
 "
 " USAGE:
 " i_CTRL-X_w		Find matches for multiple words which begin with the
-"			typed keyword characters in front of the cursor. 
+"			typed letters in front of the cursor. Unless
+"			'ignorecase' is set, a case-sensitive match is tried
+"			first. 
+"			Non-alphabetic keyword characters (e.g. "_") can be
+"			inserted into the completion base to force inclusion of
+"			these, e.g. both "mf" and "mf_b" complete to 
+"			"my foo_bar", but the latter excludes "my foobar" and 
+"			"my foo_quux". 
+"			An alphabetic anchor following a non-alphabetic anchor
+"			must match immediately after the non-alphabetic letter,
+"			not in the next word. Thus, parse the base "mf_b" as
+"			"m", "f", "_b". 
 "			
 "   In insert mode, type all initial letters of the requested phrase, and invoke
 "   the multi-word completion via CTRL-W w. You can then search forward and
@@ -38,6 +49,8 @@
 " TODO:
 "   - Allow '.' wildcard for a single and '*' for multiple words. 
 "   - Case?
+"   - When whitespace before base, include trailing non-keywords in matches,
+"     When non-keywords before base, stop at last keyword character in matches? 
 "
 " Copyright: (C) 2010 by Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'. 
@@ -61,56 +74,48 @@ function! s:GetCompleteOption()
     return (exists('b:MultiWordComplete_complete') ? b:MultiWordComplete_complete : g:MultiWordComplete_complete)
 endfunction
 
+function! s:IsAlpha( expr )
+    return (a:expr =~# '^\a\+$')
+endfunction
 function! s:BuildRegexp( base )
-    " Each alphabetic character is an anchor for the beginning of a
-    " CamelCaseWord or underscore_word. 
+    " Each alphabetic character is an anchor for the beginning of a word. 
     " All other (keyword) characters must just match at that position. 
     let l:anchors = map(split(a:base, '\zs'), 'escape(v:val, "\\")')
     let l:alphabeticAnchors = filter(copy(l:anchors), 's:IsAlpha(v:val)')
 
-    let [l:strictRegexpFragments, l:relaxedRegexpFragments] = s:BuildAlphabeticRegexpFragments(l:alphabeticAnchors)
-
     " Assemble all regexp fragments together to build the full regexp. 
     " There is a strict regexp which is tried first and a relaxed regexp to fall
     " back on. 
-    " If an anchor is alphabetic, include the built regexp fragment. 
-    " If an anchor is a keyword character, just match that character. 
-    let l:strictRegexp = ''
-    let l:relaxedRegexp = ''
-    for l:anchor in l:anchors
+    let l:regexpFragments = []
+    let l:currentFragment = ''
+    for l:i in range(len(l:anchors))
+	let l:anchor = l:anchors[l:i]
 	if s:IsAlpha(l:anchor)
-	    if len(l:strictRegexpFragments) > 0
-		let l:strictRegexp  .= remove(l:strictRegexpFragments, 0)
+	    " If an anchor is alphabetic, match a word fragment that starts with
+	    " the anchor. 
+	    if l:i > 0 && s:IsAlpha(get(l:anchors, l:i- 1, ''))
+		call add(l:regexpFragments, l:currentFragment)
+		let l:currentFragment = ''
 	    endif
-	    if len(l:relaxedRegexpFragments) > 0
-		let l:relaxedRegexp .= remove(l:relaxedRegexpFragments, 0)
-	    endif
-"****D echomsg '####' l:anchor
+	    let l:currentFragment .= l:anchor . '\k*'
 	else
-	    let [l:strictRegexpFragment, l:relaxedRegexpFragment] = s:BuildKeywordRegexpFragment(l:anchor)
-	    let l:strictRegexp  .= l:strictRegexpFragment
-	    let l:relaxedRegexp .= l:relaxedRegexpFragment
-"****D echomsg '####' '"'. l:anchor . '"'
+	    " If an anchor is a keyword character, just match that character in
+	    " case it is followed by an alphabetic anchor. 
+	    let l:currentFragment .= l:anchor . (s:IsAlpha(get(l:anchors, l:i + 1, '')) ? '' : '\k*')
 	endif
     endfor
-
-    " Each alphabetic anchor results in one fragment; there still is one
-    " fragment to match any CamelCaseWords and underscore_words when there are
-    " no alphabetic anchors. 
-    if len(l:alphabeticAnchors) == 0
-	if len(l:strictRegexpFragments) > 0
-	    let l:strictRegexp  .= remove(l:strictRegexpFragments, 0)
-	endif
-	if len(l:relaxedRegexpFragments) > 0
-	    let l:relaxedRegexp .= remove(l:relaxedRegexpFragments, 0)
-	endif
+    if ! empty(l:currentFragment)
+	call add(l:regexpFragments, l:currentFragment)
     endif
 
-"****D return [s:WholeWordMatch(l:strictRegexp), '']
-    " With no keyword anchors and no or only one alphabetic anchor, the relaxed
-    " regexp may be identical with the strict one. In this case, omit the
-    " relaxed regexp to avoid searching for (no existing) matches twice. 
-    return [s:WholeWordMatch(l:strictRegexp), (l:relaxedRegexp ==# l:strictRegexp ? '' : s:WholeWordMatch(l:relaxedRegexp))]
+    if len(l:regexpFragments) == 0
+	let l:regexpFragments = ['\k\+']
+    endif
+
+    " Anchor the entire regexp at the start of a word. 
+    let l:regexp = '\<' . join(l:regexpFragments, '\%(\k\@!\_.\)\+')
+echomsg '****' l:regexp
+    return [l:regexp, '']
 endfunction
 function! MultiWordComplete#MultiWordComplete( findstart, base )
     if a:findstart
@@ -137,7 +142,6 @@ function! MultiWordComplete#MultiWordComplete( findstart, base )
 	    echohl None
 	    call CompleteHelper#FindMatches( l:matches, l:relaxedRegexp, {'complete': s:GetCompleteOption()} )
 	endif
-	let s:isNoMatches = empty(l:matches)
 	return l:matches
     endif
 endfunction
