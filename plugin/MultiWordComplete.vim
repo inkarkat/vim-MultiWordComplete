@@ -46,6 +46,11 @@
 "	let g:MultiWordComplete_complete string = '.,w'
 "   The global setting can be overridden for a particular buffer
 "   (b:MultiWordComplete_complete). 
+"
+"   To disable the removal of the (mostly useless) completion base when aborting
+"   with <Esc> while there are no matches: >
+"	let g:MultiWordComplete_FindStartMark = ''
+"	
 "   
 " INTEGRATION:
 " LIMITATIONS:
@@ -63,6 +68,13 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS 
+"	004	04-Mar-2010	Implemented optional setting of a mark at the
+"				findstart position. If this is done, the
+"				completion base is automatically removed if no
+"				matches were found: As the base just consists of
+"				a sequence of anchor characters, it isn't
+"				helpful for further editing when the completion
+"				failed. (Taken from CamelCaseComplete.vim.) 
 "	003	04-Mar-2010	Treating non-alphabetic keyword anchors like
 "				numbers. 
 "	002	03-Mar-2010	Added special handling of numbers. 
@@ -76,6 +88,13 @@ let g:loaded_MultiWordComplete = 1
 
 if ! exists('g:MultiWordComplete_complete')
     let g:MultiWordComplete_complete = '.,w'
+endif
+if ! exists('g:MultiWordComplete_FindStartMark')
+    " To avoid clobbering user-set marks, we use the obscure "last exit point of
+    " buffer" mark. 
+    " Setting of mark '" is only supported since Vim 7.2; use last jump mark ''
+    " for Vim 7.0 and 7.1. 
+    let g:MultiWordComplete_FindStartMark = (v:version < 702 ? "'" : '"')
 endif
 
 function! s:GetCompleteOption()
@@ -157,6 +176,14 @@ function! MultiWordComplete#MultiWordComplete( findstart, base )
 	if l:startCol == 0
 	    let l:startCol = col('.')
 	endif
+
+	if ! empty(g:MultiWordComplete_FindStartMark)
+	    " Record the position of the start of the completion base to allow
+	    " removal of the completion base if no matches were found. 
+	    let l:findstart = [0, line('.'), l:startCol, 0]
+	    call setpos(printf("'%s", g:MultiWordComplete_FindStartMark), l:findstart)
+	endif
+
 	return l:startCol - 1 " Return byte index, not column. 
     else
 	let [l:strictRegexp, l:relaxedRegexp] = s:BuildRegexp(a:base)
@@ -175,9 +202,15 @@ function! MultiWordComplete#MultiWordComplete( findstart, base )
 	    echohl None
 	    call CompleteHelper#FindMatches( l:matches, l:relaxedRegexp, {'complete': s:GetCompleteOption()} )
 	endif
+	let s:isNoMatches = empty(l:matches)
 	return l:matches
     endif
 endfunction
+
+function! s:RemoveBaseKeys()
+    return (s:isNoMatches && ! empty(g:MultiWordComplete_FindStartMark) ? "\<C-e>\<C-\>\<C-o>dg`" . g:MultiWordComplete_FindStartMark : '')
+endfunction
+inoremap <script> <Plug>MultiWordPostComplete <C-r>=<SID>RemoveBaseKeys()<CR>
 
 function! s:MultiWordCompleteExpr()
     set completefunc=MultiWordComplete#MultiWordComplete
@@ -186,6 +219,7 @@ endfunction
 inoremap <script> <expr> <Plug>MultiWordComplete <SID>MultiWordCompleteExpr()
 if ! hasmapto('<Plug>MultiWordComplete', 'i')
     imap <C-x>w <Plug>MultiWordComplete
+    execute 'imap <C-x>w <Plug>MultiWordComplete' . (empty(g:MultiWordComplete_FindStartMark) ? '' : '<Plug>MultiWordPostComplete')
 endif
 
 " vim: set sts=4 sw=4 noexpandtab ff=unix fdm=syntax :
