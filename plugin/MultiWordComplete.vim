@@ -16,17 +16,20 @@
 "			typed letters in front of the cursor. Unless
 "			'ignorecase' is set, a case-sensitive match is tried
 "			first. 
-"			Non-alphabetic keyword characters (e.g. "_") can be
-"			inserted into the completion base to force inclusion of
-"			these, e.g. both "mf" and "mf_b" complete to 
-"			"my foo_bar", but the latter excludes "my foobar" and 
-"			"my foo_quux". 
+"			Non-alphabetic keyword characters (e.g. numbers, "_" in
+"			the default 'iskeyword' setting) can be inserted into
+"			the completion base to force inclusion of these, e.g.
+"			both "mf" and "mf_b" complete to "my foo_bar", but the
+"			latter excludes "my foobar" and "my foo_quux". 
 "			An alphabetic anchor following a non-alphabetic anchor
 "			must match immediately after the non-alphabetic letter,
-"			not in the next word. Thus, parse the base "mf_b" as
-"			"m", "f", "_b". 
-"			Numbers [0-9] match as both types of anchors, e.g.
-"			"f2s" matches both "foobar 2000 system" and "foo2sam". 
+"			not in the next word. Thus, mentally parse the base
+"			"mf_b" as "m", "f", "_b". 
+"			In addition, non-alphabetic keyword characters match at
+"			a start of a word, too. For example, "f2s" matches both
+"			"foobar 2000 system" ("2" matching like an alphabetic
+"			character) and "foo2sam" ("2" matching according to the
+"			special rule for non-alphabetic characters). 
 "			
 "   In insert mode, type all initial letters of the requested phrase, and invoke
 "   the multi-word completion via CTRL-W w. You can then search forward and
@@ -60,6 +63,8 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS 
+"	003	04-Mar-2010	Treating non-alphabetic keyword anchors like
+"				numbers. 
 "	002	03-Mar-2010	Added special handling of numbers. 
 "	001	26-Feb-2010	file creation
 
@@ -79,9 +84,6 @@ endfunction
 
 function! s:IsAlpha( expr )
     return (a:expr =~# '^\a\+$')
-endfunction
-function! s:IsNumber( expr )
-    return (a:expr =~# '^\d\+$')
 endfunction
 function! s:BuildRegexp( base )
     " Each alphabetic character is an anchor for the beginning of a word. 
@@ -107,23 +109,23 @@ function! s:BuildRegexp( base )
 		let l:currentFragment = ''
 	    endif
 	    let l:currentFragment .= l:anchor . '\k*'
-	elseif s:IsNumber(l:anchor)
-	    " If an anchor is a number, match both a word fragment that starts
-	    " with the number, or just match the number. 
+	else
+	    " If an anchor is a non-alphabetic character, match either a word
+	    " fragment that starts with the it, or just match the it. 
 	    if ! empty(l:currentFragment)
 		" This may (cardinality = *) be a new word fragment starting
-		" with a number. Because of the different cardinality, directly
+		" with the non-letter. Because of the different cardinality, directly
 		" append this here to the current fragment instead of relying on
 		" the eventual joining of word fragments. 
 		let l:currentFragment .= '\%(\k\@!\_.\)*'
 	    endif
 	    if s:IsAlpha(l:nextAnchor)
-		" An alphabetic anchor following a number may either immediately
-		" match after it (like any other non-alphabetic keyword
-		" character, creating a joint anchor). Or it may represent a
-		" word fragment of its own. In this case, we directly append the
-		" next alphabetic anchor here instead of relying on the eventual
-		" joining of word fragments. 
+		" An alphabetic anchor following a non-alphabetic one may either
+		" immediately match after it (like any other non-alphabetic
+		" keyword character, creating a joint anchor). Or it may
+		" represent a word fragment of its own. In this case, we
+		" directly append the next alphabetic anchor here instead of
+		" relying on the eventual joining of word fragments. 
 		let l:currentFragment .= l:anchor . '\%(\k*\%(\k\@!\_.\)\+\)\?' . l:nextAnchor . '\k*'
 
 		" The next anchor has already been processed, skip it in the
@@ -132,11 +134,6 @@ function! s:BuildRegexp( base )
 	    else
 		let l:currentFragment .= l:anchor . '\k*'
 	    endif
-	else
-	    " If an anchor is a keyword character, just match that character in
-	    " case it is followed by an alphabetic anchor, thereby creating a
-	    " joint anchor. 
-	    let l:currentFragment .= l:anchor . (s:IsAlpha(l:nextAnchor) ? '' : '\k*')
 	endif
 	let l:i += 1
     endwhile
@@ -150,7 +147,7 @@ function! s:BuildRegexp( base )
 
     " Anchor the entire regexp at the start of a word. 
     let l:regexp = '\<' . join(l:regexpFragments, '\%(\k\@!\_.\)\+')
-"****D echomsg '****' l:regexp
+echomsg '****' l:regexp
     return [l:regexp, '']
 endfunction
 function! MultiWordComplete#MultiWordComplete( findstart, base )
