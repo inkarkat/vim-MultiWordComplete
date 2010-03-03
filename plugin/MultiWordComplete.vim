@@ -12,7 +12,7 @@
 "   completion", and "/ulb" completes to "/usr/local/bin". 
 "
 " USAGE:
-" i_CTRL-X_w		Find matches for multiple words which begin with the
+" <i_CTRL-X_w>		Find matches for multiple words which begin with the
 "			typed letters in front of the cursor. Unless
 "			'ignorecase' is set, a case-sensitive match is tried
 "			first. 
@@ -25,6 +25,8 @@
 "			must match immediately after the non-alphabetic letter,
 "			not in the next word. Thus, parse the base "mf_b" as
 "			"m", "f", "_b". 
+"			Numbers [0-9] match as both types of anchors, e.g.
+"			"f2s" matches both "foobar 2000 system" and "foo2sam". 
 "			
 "   In insert mode, type all initial letters of the requested phrase, and invoke
 "   the multi-word completion via CTRL-W w. You can then search forward and
@@ -58,6 +60,7 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS 
+"	002	03-Mar-2010	Added special handling of numbers. 
 "	001	26-Feb-2010	file creation
 
 " Avoid installing twice or when in unsupported Vim version. 
@@ -77,33 +80,66 @@ endfunction
 function! s:IsAlpha( expr )
     return (a:expr =~# '^\a\+$')
 endfunction
+function! s:IsNumber( expr )
+    return (a:expr =~# '^\d\+$')
+endfunction
 function! s:BuildRegexp( base )
     " Each alphabetic character is an anchor for the beginning of a word. 
     " All other (keyword) characters must just match at that position. 
     let l:anchors = map(split(a:base, '\zs'), 'escape(v:val, "\\")')
-    let l:alphabeticAnchors = filter(copy(l:anchors), 's:IsAlpha(v:val)')
 
     " Assemble all regexp fragments together to build the full regexp. 
     " There is a strict regexp which is tried first and a relaxed regexp to fall
     " back on. 
     let l:regexpFragments = []
     let l:currentFragment = ''
-    for l:i in range(len(l:anchors))
+    let l:i = 0
+    while l:i < len(l:anchors)
 	let l:anchor = l:anchors[l:i]
+	let l:previousAnchor = get(l:anchors, l:i - 1, '')
+	let l:nextAnchor = get(l:anchors, l:i + 1, '')
+
 	if s:IsAlpha(l:anchor)
 	    " If an anchor is alphabetic, match a word fragment that starts with
 	    " the anchor. 
-	    if l:i > 0 && s:IsAlpha(get(l:anchors, l:i- 1, ''))
+	    if l:i > 0 && s:IsAlpha(l:previousAnchor)
 		call add(l:regexpFragments, l:currentFragment)
 		let l:currentFragment = ''
 	    endif
 	    let l:currentFragment .= l:anchor . '\k*'
+	elseif s:IsNumber(l:anchor)
+	    " If an anchor is a number, match both a word fragment that starts
+	    " with the number, or just match the number. 
+	    if ! empty(l:currentFragment)
+		" This may (cardinality = *) be a new word fragment starting
+		" with a number. Because of the different cardinality, directly
+		" append this here to the current fragment instead of relying on
+		" the eventual joining of word fragments. 
+		let l:currentFragment .= '\%(\k\@!\_.\)*'
+	    endif
+	    if s:IsAlpha(l:nextAnchor)
+		" An alphabetic anchor following a number may either immediately
+		" match after it (like any other non-alphabetic keyword
+		" character, creating a joint anchor). Or it may represent a
+		" word fragment of its own. In this case, we directly append the
+		" next alphabetic anchor here instead of relying on the eventual
+		" joining of word fragments. 
+		let l:currentFragment .= l:anchor . '\%(\k*\%(\k\@!\_.\)\+\)\?' . l:nextAnchor . '\k*'
+
+		" The next anchor has already been processed, skip it in the
+		" loop. 
+		let l:i += 1
+	    else
+		let l:currentFragment .= l:anchor . '\k*'
+	    endif
 	else
 	    " If an anchor is a keyword character, just match that character in
-	    " case it is followed by an alphabetic anchor. 
-	    let l:currentFragment .= l:anchor . (s:IsAlpha(get(l:anchors, l:i + 1, '')) ? '' : '\k*')
+	    " case it is followed by an alphabetic anchor, thereby creating a
+	    " joint anchor. 
+	    let l:currentFragment .= l:anchor . (s:IsAlpha(l:nextAnchor) ? '' : '\k*')
 	endif
-    endfor
+	let l:i += 1
+    endwhile
     if ! empty(l:currentFragment)
 	call add(l:regexpFragments, l:currentFragment)
     endif
@@ -114,7 +150,7 @@ function! s:BuildRegexp( base )
 
     " Anchor the entire regexp at the start of a word. 
     let l:regexp = '\<' . join(l:regexpFragments, '\%(\k\@!\_.\)\+')
-echomsg '****' l:regexp
+"****D echomsg '****' l:regexp
     return [l:regexp, '']
 endfunction
 function! MultiWordComplete#MultiWordComplete( findstart, base )
