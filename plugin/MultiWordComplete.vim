@@ -13,9 +13,13 @@
 "
 " USAGE:
 " <i_CTRL-X_w>		Find matches for multiple words which begin with the
-"			typed letters in front of the cursor. Unless
-"			'ignorecase' is set, a case-sensitive match is tried
-"			first. 
+"			typed letters in front of the cursor. The 'ignorecase'
+"			and 'smartcase' settings apply. If no matches were
+"			found that way, a case-insensitive search is tried as a
+"			fallback. (So, unless you care about a minimum number of
+"			matches and search speed, you can be sloppy with the
+"			case of the typed letters.) 
+"
 "			Non-alphabetic keyword characters (e.g. numbers, "_" in
 "			the default 'iskeyword' setting) can be inserted into
 "			the completion base to force inclusion of these, e.g.
@@ -58,7 +62,6 @@
 " KNOWN PROBLEMS:
 " TODO:
 "   - Allow '.' wildcard for a single and '*' for multiple words. 
-"   - Case?
 "   - When whitespace before base, include trailing non-keywords in matches,
 "     When non-keywords before base, stop at last keyword character in matches? 
 "
@@ -167,7 +170,7 @@ function! s:BuildRegexp( base )
     " Anchor the entire regexp at the start of a word. 
     let l:regexp = '\<' . join(l:regexpFragments, '\%(\k\@!\_.\)\+')
 echomsg '****' l:regexp
-    return [l:regexp, '']
+    return l:regexp
 endfunction
 function! MultiWordComplete#MultiWordComplete( findstart, base )
     if a:findstart
@@ -186,21 +189,20 @@ function! MultiWordComplete#MultiWordComplete( findstart, base )
 
 	return l:startCol - 1 " Return byte index, not column. 
     else
-	let [l:strictRegexp, l:relaxedRegexp] = s:BuildRegexp(a:base)
-"****D let [g:sr, g:rr] = [l:strictRegexp, l:relaxedRegexp]
-	if empty(l:strictRegexp) | throw 'ASSERT: At least a strict regexp should have been built.' | endif
+	let l:regexp = s:BuildRegexp(a:base)
+	if empty(l:regexp) | throw 'ASSERT: A regexp should have been built.' | endif
 
-	" Find keywords matching the prepared regexp. Use the relaxed regexp
-	" when the strict one doesn't yield any matches. 
+	" Find keywords matching the prepared regexp. Use a case-insensitive
+	" search if there is a chance that it will yield matches (i.e. if the
+	" first search wasn't case-insensitive yet). 
 	let l:matches = []
-"****D echomsg '****strict ' l:strictRegexp
-	call CompleteHelper#FindMatches( l:matches, l:strictRegexp, {'complete': s:GetCompleteOption()} )
-	if empty(l:matches) && ! empty(l:relaxedRegexp)
-"****D echomsg '****relaxed' l:relaxedRegexp
+	call CompleteHelper#FindMatches( l:matches, l:regexp, {'complete': s:GetCompleteOption()} )
+	if empty(l:matches) && (! &ignorecase || (&ignorecase && &smartcase && a:base =~# '\u'))
+"****D echomsg '**** case-insensitive fallback'
 	    echohl ModeMsg
-	    echo '-- User defined completion (^U^N^P) -- Relaxed search...'
+	    echo '-- User defined completion (^U^N^P) -- Case-insensitive search...'
 	    echohl None
-	    call CompleteHelper#FindMatches( l:matches, l:relaxedRegexp, {'complete': s:GetCompleteOption()} )
+	    call CompleteHelper#FindMatches( l:matches, '\c' . l:regexp, {'complete': s:GetCompleteOption()} )
 	endif
 	let s:isNoMatches = empty(l:matches)
 	return l:matches
