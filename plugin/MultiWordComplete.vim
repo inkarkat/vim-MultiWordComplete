@@ -65,12 +65,14 @@
 "   - When whitespace before base, include trailing non-keywords in matches,
 "     When non-keywords before base, stop at last keyword character in matches? 
 "
-" Copyright: (C) 2010 by Ingo Karkat
+" Copyright: (C) 2010-2011 by Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'. 
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS 
+"	005	30-Sep-2011	Use <silent>. 
+"				Comment out debugging info. 
 "	004	04-Mar-2010	Implemented optional setting of a mark at the
 "				findstart position. If this is done, the
 "				completion base is automatically removed if no
@@ -169,7 +171,7 @@ function! s:BuildRegexp( base )
 
     " Anchor the entire regexp at the start of a word. 
     let l:regexp = '\<' . join(l:regexpFragments, '\%(\k\@!\_.\)\+')
-echomsg '****' l:regexp
+"****D echomsg '****' l:regexp
     return l:regexp
 endfunction
 function! MultiWordComplete#MultiWordComplete( findstart, base )
@@ -212,7 +214,7 @@ endfunction
 function! s:RemoveBaseKeys()
     return (s:isNoMatches && ! empty(g:MultiWordComplete_FindStartMark) ? "\<C-e>\<C-\>\<C-o>dg`" . g:MultiWordComplete_FindStartMark : '')
 endfunction
-inoremap <script> <Plug>MultiWordPostComplete <C-r>=<SID>RemoveBaseKeys()<CR>
+inoremap <silent> <script> <Plug>MultiWordPostComplete <C-r>=<SID>RemoveBaseKeys()<CR>
 
 function! s:MultiWordCompleteExpr()
     set completefunc=MultiWordComplete#MultiWordComplete
