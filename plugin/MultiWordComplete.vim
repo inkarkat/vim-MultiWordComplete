@@ -65,7 +65,7 @@
 "   - When whitespace before base, include trailing non-keywords in matches,
 "     When non-keywords before base, stop at last keyword character in matches? 
 "
-" Copyright: (C) 2010-2011 by Ingo Karkat
+" Copyright: (C) 2010-2011 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'. 
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
@@ -214,16 +214,16 @@ endfunction
 function! s:RemoveBaseKeys()
     return (s:isNoMatches && ! empty(g:MultiWordComplete_FindStartMark) ? "\<C-e>\<C-\>\<C-o>dg`" . g:MultiWordComplete_FindStartMark : '')
 endfunction
-inoremap <silent> <script> <Plug>MultiWordPostComplete <C-r>=<SID>RemoveBaseKeys()<CR>
+inoremap <silent> <script> <Plug>(MultiWordPostComplete) <C-r>=<SID>RemoveBaseKeys()<CR>
 
 function! s:MultiWordCompleteExpr()
     set completefunc=MultiWordComplete#MultiWordComplete
     return "\<C-x>\<C-u>"
 endfunction
-inoremap <script> <expr> <Plug>MultiWordComplete <SID>MultiWordCompleteExpr()
-if ! hasmapto('<Plug>MultiWordComplete', 'i')
-    imap <C-x>w <Plug>MultiWordComplete
-    execute 'imap <C-x>w <Plug>MultiWordComplete' . (empty(g:MultiWordComplete_FindStartMark) ? '' : '<Plug>MultiWordPostComplete')
+inoremap <script> <expr> <Plug>(MultiWordComplete) <SID>MultiWordCompleteExpr()
+if ! hasmapto('<Plug>(MultiWordComplete)', 'i')
+    imap <C-x>w <Plug>(MultiWordComplete)
+    execute 'imap <C-x>w <Plug>(MultiWordComplete)' . (empty(g:MultiWordComplete_FindStartMark) ? '' : '<Plug>(MultiWordPostComplete)')
 endif
 
 " vim: set sts=4 sw=4 noexpandtab ff=unix fdm=syntax :
