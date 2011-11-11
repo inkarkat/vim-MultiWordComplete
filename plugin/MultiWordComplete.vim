@@ -19,6 +19,8 @@
 "			fallback. (So, unless you care about a minimum number of
 "			matches and search speed, you can be sloppy with the
 "			case of the typed letters.) 
+"			The sequence of words can span multiple lines; newlines
+"			are removed in the completion results. 
 "
 "			Non-alphabetic keyword characters (e.g. numbers, "_" in
 "			the default 'iskeyword' setting) can be inserted into
@@ -71,6 +73,12 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS 
+"	006	19-Oct-2011	Add CompleteHelper#JoinMultiline() processor
+"				option after the flattening of newlines has been
+"				removed from the default processing in
+"				CompleteHelper. We do not want to keep newlines
+"				in the completion results, as this completion is
+"				about sequences of words. 
 "	005	30-Sep-2011	Use <silent>. 
 "				Comment out debugging info. 
 "	004	04-Mar-2010	Implemented optional setting of a mark at the
@@ -197,14 +205,15 @@ function! MultiWordComplete#MultiWordComplete( findstart, base )
 	" Find keywords matching the prepared regexp. Use a case-insensitive
 	" search if there is a chance that it will yield matches (i.e. if the
 	" first search wasn't case-insensitive yet). 
+	let l:options = {'complete': s:GetCompleteOption(), 'processor': function('CompleteHelper#JoinMultiline')}
 	let l:matches = []
-	call CompleteHelper#FindMatches( l:matches, l:regexp, {'complete': s:GetCompleteOption()} )
+	call CompleteHelper#FindMatches(l:matches, l:regexp, l:options)
 	if empty(l:matches) && (! &ignorecase || (&ignorecase && &smartcase && a:base =~# '\u'))
 "****D echomsg '**** case-insensitive fallback'
 	    echohl ModeMsg
 	    echo '-- User defined completion (^U^N^P) -- Case-insensitive search...'
 	    echohl None
-	    call CompleteHelper#FindMatches( l:matches, '\c' . l:regexp, {'complete': s:GetCompleteOption()} )
+	    call CompleteHelper#FindMatches(l:matches, '\c' . l:regexp, l:options)
 	endif
 	let s:isNoMatches = empty(l:matches)
 	return l:matches
