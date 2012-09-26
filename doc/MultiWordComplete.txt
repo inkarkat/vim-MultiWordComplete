@@ -35,6 +35,10 @@ SEE ALSO								     *
 
 ==============================================================================
 USAGE						     *MultiWordComplete-usage*
+
+In insert mode, type all initial letters of the requested phrase, and invoke
+the multi-word completion via CTRL-W w.
+You can then search forward and backward via CTRL-N / CTRL-P, as usual.
 								  *i_CTRL-W_w*
 CTRL-X w		Find matches for multiple words which begin with the
 			typed letters in front of the cursor. The 'ignorecase'
@@ -62,20 +66,16 @@ CTRL-X w		Find matches for multiple words which begin with the
 			according to the special rule for non-alphabetic
 			characters).
 
-In insert mode, type all initial letters of the requested phrase, and invoke
-the multi-word completion via CTRL-W w. You can then search forward and
-backward via CTRL-N / CTRL-P, as usual.
-
 EXAMPLE						   *MultiWordComplete-example*
 
 ==============================================================================
 INSTALLATION				      *MultiWordComplete-installation*
 
 This script is packaged as a |vimball|. If you have the "gunzip" decompressor
-in your PATH, simply edit the *.vba.gz package in Vim; otherwise, decompress
+in your PATH, simply edit the *.vmb.gz package in Vim; otherwise, decompress
 the archive first, e.g. using WinZip. Inside Vim, install by sourcing the
 vimball or via the |:UseVimball| command. >
-    vim MultiWordComplete.vba.gz
+    vim MultiWordComplete*.vba.gz
     :so %
 To uninstall, use the |:RmVimball| command.
 
@@ -91,9 +91,9 @@ For a permanent configuration, put the following commands into your |vimrc|:
 
 		 *b:MultiWordComplete_complete* *g:MultiWordComplete_complete*
 Analoguous to the 'complete' option, you can specify which buffers will be
-scanned for completion candidates. Currently, only '.' (current buffer) and
-'w' (buffers from other windows) are supported. >
-    let g:MultiWordComplete_complete string = '.,w'
+scanned for completion candidates. Currently, '.' (current buffer), 'w'
+(buffers from other windows), and 'b' (other listed buffers) are supported. >
+    let g:MultiWordComplete_complete string = '.,w,b'
 The global setting can be overridden for a particular buffer
 (b:MultiWordComplete_complete).
 
