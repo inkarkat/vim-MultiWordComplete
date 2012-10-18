@@ -102,6 +102,12 @@ To disable the removal of the (mostly useless) completion base when aborting
 with <Esc> while there are no matches: >
     let g:MultiWordComplete_FindStartMark = ''
 <
+						     *MultiWordComplete-remap*
+If you want to use a different mapping, map your keys to the
+<Plug>(MultiWordComplete) mapping target _before_ sourcing the script (e.g.
+in your |vimrc|): >
+    imap <C-x>w <Plug>(MultiWordComplete)<Plug>(MultiWordPostComplete)
+<
 ==============================================================================
 LIMITATIONS				       *MultiWordComplete-limitations*
 
