@@ -4,12 +4,15 @@
 " DEPENDENCIES:
 "   - CompleteHelper.vim autoload script
 "
-" Copyright: (C) 2010-2012 Ingo Karkat
+" Copyright: (C) 2010-2013 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"	008	15-Jul-2013	Don't accept an empty base; this will just show
+"				all keyword matches and work like the built-in
+"				completion.
 "	007	20-Aug-2012	Split off functions into separate autoload
 "				script and documentation into dedicated help
 "				file.
@@ -108,9 +111,9 @@ endfunction
 function! MultiWordComplete#MultiWordComplete( findstart, base )
     if a:findstart
 	" Locate the start of the keyword that represents the initial letters.
-	let l:startCol = searchpos('\k*\%#', 'bn', line('.'))[1]
+	let l:startCol = searchpos('\k\+\%#', 'bn', line('.'))[1]
 	if l:startCol == 0
-	    let l:startCol = col('.')
+	    return -1   " No base before the cursor; cancel the completion with an error message.
 	endif
 
 	if ! empty(g:MultiWordComplete_FindStartMark)
@@ -121,7 +124,7 @@ function! MultiWordComplete#MultiWordComplete( findstart, base )
 	endif
 
 	return l:startCol - 1 " Return byte index, not column.
-    else
+    elseif ! empty(a:base)
 	let l:regexp = s:BuildRegexp(a:base)
 	if empty(l:regexp) | throw 'ASSERT: A regexp should have been built.' | endif
 
@@ -140,6 +143,8 @@ function! MultiWordComplete#MultiWordComplete( findstart, base )
 	endif
 	let s:isNoMatches = empty(l:matches)
 	return l:matches
+    else
+	return []
     endif
 endfunction
 
