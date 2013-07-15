@@ -1,0 +1,2 @@
+runtime plugin/MultiWordComplete.vim
+
