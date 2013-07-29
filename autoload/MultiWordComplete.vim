@@ -3,6 +3,7 @@
 "
 " DEPENDENCIES:
 "   - CompleteHelper.vim autoload script
+"   - CompleteHelper/Repeat.vim autoload script
 "
 " Copyright: (C) 2010-2013 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
@@ -10,6 +11,7 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"	009	15-Jul-2013	Add support for repeat of completion.
 "	008	15-Jul-2013	Don't accept an empty base; this will just show
 "				all keyword matches and work like the built-in
 "				completion.
@@ -109,6 +111,16 @@ function! s:BuildRegexp( base )
     return l:regexp
 endfunction
 function! MultiWordComplete#MultiWordComplete( findstart, base )
+    if s:repeatCnt
+	if a:findstart
+	    return col('.') - 1
+	else
+	    let l:matches = []
+	    call CompleteHelper#FindMatches(l:matches, '\V\<' . escape(s:fullText, '\') . '\zs\%(\k\@!\.\)\+\k\+', {'complete': s:GetCompleteOption()})
+	    return l:matches
+	endif
+    endif
+
     if a:findstart
 	" Locate the start of the keyword that represents the initial letters.
 	let l:startCol = searchpos('\k\+\%#', 'bn', line('.'))[1]
@@ -153,6 +165,9 @@ function! MultiWordComplete#RemoveBaseKeys()
 endfunction
 function! MultiWordComplete#Expr()
     set completefunc=MultiWordComplete#MultiWordComplete
+
+    let s:repeatCnt = 0 " Important!
+    let [s:repeatCnt, l:addedText, s:fullText] = CompleteHelper#Repeat#TestForRepeat()
     return "\<C-x>\<C-u>"
 endfunction
 
