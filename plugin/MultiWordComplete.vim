@@ -11,6 +11,9 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"	008	03-Sep-2012	Add value "b" (other listed buffers) to the
+"				plugin's 'complete' option offered by
+"				CompleteHelper.vim 1.20.
 "	007	20-Aug-2012	Split off functions into separate autoload
 "				script and documentation into dedicated help
 "				file.
@@ -43,7 +46,7 @@ let g:loaded_MultiWordComplete = 1
 "- configuration ---------------------------------------------------------------
 
 if ! exists('g:MultiWordComplete_complete')
-    let g:MultiWordComplete_complete = '.,w'
+    let g:MultiWordComplete_complete = '.,w,b'
 endif
 if ! exists('g:MultiWordComplete_FindStartMark')
     " To avoid clobbering user-set marks, we use the obscure "last exit point of
