@@ -93,7 +93,7 @@ For a permanent configuration, put the following commands into your |vimrc|:
 Analoguous to the 'complete' option, you can specify which buffers will be
 scanned for completion candidates. Currently, '.' (current buffer), 'w'
 (buffers from other windows), and 'b' (other listed buffers) are supported. >
-    let g:MultiWordComplete_complete string = '.,w,b'
+    let g:MultiWordComplete_complete = '.,w,b'
 The global setting can be overridden for a particular buffer
 (b:MultiWordComplete_complete).
 
@@ -131,7 +131,7 @@ First published version.
 Started development.
 
 ==============================================================================
-Copyright: (C) 2010-2012 Ingo Karkat
+Copyright: (C) 2010-2013 Ingo Karkat
 The VIM LICENSE applies to this plugin; see |copyright|.
 
 Maintainer:	Ingo Karkat <ingo@karkat.de>
