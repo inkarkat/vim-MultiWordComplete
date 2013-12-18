@@ -11,6 +11,9 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"	010	30-Jul-2013	Initialize s:repeatCnt because it not only
+"				caused errors in the tests, but also when used
+"				in AutoComplPop.
 "	009	15-Jul-2013	Add support for repeat of completion.
 "	008	15-Jul-2013	Don't accept an empty base; this will just show
 "				all keyword matches and work like the built-in
@@ -110,6 +113,7 @@ function! s:BuildRegexp( base )
 "****D echomsg '****' l:regexp
     return l:regexp
 endfunction
+let s:repeatCnt = 0
 function! MultiWordComplete#MultiWordComplete( findstart, base )
     if s:repeatCnt
 	if a:findstart
