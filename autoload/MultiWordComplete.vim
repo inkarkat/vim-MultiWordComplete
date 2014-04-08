@@ -11,7 +11,7 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
-"	010	30-Jul-2013	Initialize s:repeatCnt because it not only
+"   1.00.010	30-Jul-2013	Initialize s:repeatCnt because it not only
 "				caused errors in the tests, but also when used
 "				in AutoComplPop.
 "	009	15-Jul-2013	Add support for repeat of completion.
@@ -151,7 +151,6 @@ function! MultiWordComplete#MultiWordComplete( findstart, base )
 	let l:matches = []
 	call CompleteHelper#FindMatches(l:matches, l:regexp, l:options)
 	if empty(l:matches) && (! &ignorecase || (&ignorecase && &smartcase && a:base =~# '\u'))
-"****D echomsg '**** case-insensitive fallback'
 	    echohl ModeMsg
 	    echo '-- User defined completion (^U^N^P) -- Case-insensitive search...'
 	    echohl None
