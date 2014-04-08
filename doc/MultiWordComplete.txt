@@ -66,8 +66,6 @@ CTRL-X w		Find matches for multiple words which begin with the
 			according to the special rule for non-alphabetic
 			characters).
 
-EXAMPLE						   *MultiWordComplete-example*
-
 ==============================================================================
 INSTALLATION				      *MultiWordComplete-installation*
 
@@ -115,16 +113,16 @@ KNOWN PROBLEMS				    *MultiWordComplete-known-problems*
 
 TODO						      *MultiWordComplete-todo*
 
-- Allow '.' wildcard for a single and '*' for multiple words.
-- When whitespace before base, include trailing non-keywords in matches,
-  When non-keywords before base, stop at last keyword character in matches?
-
 IDEAS						     *MultiWordComplete-ideas*
+
+- Allow '.' wildcard for a single and '*' for multiple words.
+- When whitespace before base, include trailing non-keywords in matches, else
+  when non-keywords before base, stop at last keyword character in matches?
 
 ==============================================================================
 HISTORY						   *MultiWordComplete-history*
 
-GOAL
+1.00	19-Dec-2013
 First published version.
 
 0.01	26-Feb-2010
