@@ -5,12 +5,17 @@
 "   - CompleteHelper.vim autoload script
 "   - CompleteHelper/Repeat.vim autoload script
 "
-" Copyright: (C) 2010-2013 Ingo Karkat
+" Copyright: (C) 2010-2014 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.01.010	07-Apr-2014	Make repeat across lines work.
+"				Let CompleteHelper#Repeat#GetPattern() assemble
+"				the repeat pattern.
+"				Adapt repeat pattern to match Vim's built-in
+"				behavior.
 "   1.00.010	30-Jul-2013	Initialize s:repeatCnt because it not only
 "				caused errors in the tests, but also when used
 "				in AutoComplPop.
@@ -40,6 +45,8 @@
 "				numbers.
 "	002	03-Mar-2010	Added special handling of numbers.
 "	001	26-Feb-2010	file creation
+let s:save_cpo = &cpo
+set cpo&vim
 
 function! s:GetCompleteOption()
     return (exists('b:MultiWordComplete_complete') ? b:MultiWordComplete_complete : g:MultiWordComplete_complete)
@@ -120,7 +127,13 @@ function! MultiWordComplete#MultiWordComplete( findstart, base )
 	    return col('.') - 1
 	else
 	    let l:matches = []
-	    call CompleteHelper#FindMatches(l:matches, '\V\<' . escape(s:fullText, '\') . '\zs\%(\k\@!\.\)\+\k\+', {'complete': s:GetCompleteOption()})
+	    call CompleteHelper#FindMatches(l:matches,
+	    \   CompleteHelper#Repeat#GetPattern(s:fullText),
+	    \   {'complete': s:GetCompleteOption(), 'processor': function('CompleteHelper#Repeat#Processor')}
+	    \)
+	    if empty(l:matches)
+		call CompleteHelper#Repeat#Clear()
+	    endif
 	    return l:matches
 	endif
     endif
@@ -174,4 +187,6 @@ function! MultiWordComplete#Expr()
     return "\<C-x>\<C-u>"
 endfunction
 
+let &cpo = s:save_cpo
+unlet s:save_cpo
 " vim: set ts=8 sts=4 sw=4 noexpandtab ff=unix fdm=syntax :
