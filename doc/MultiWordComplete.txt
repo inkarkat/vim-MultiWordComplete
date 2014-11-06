@@ -80,7 +80,8 @@ To uninstall, use the |:RmVimball| command.
 DEPENDENCIES				      *MultiWordComplete-dependencies*
 
 - Requires Vim 7.0 or higher.
-- Requires the |CompleteHelper.vim| plugin (vimscript #3914).
+- Requires the |CompleteHelper.vim| plugin (vimscript #3914), version 1.40 or
+  higher.
 
 ==============================================================================
 CONFIGURATION				     *MultiWordComplete-configuration*
@@ -122,6 +123,10 @@ IDEAS						     *MultiWordComplete-ideas*
 ==============================================================================
 HISTORY						   *MultiWordComplete-history*
 
+1.01	RELEASEME
+- Make repeat across lines work. *** You need to update to CompleteHelper.vim
+  (vimscript #3914) version 1.40! ***
+
 1.00	19-Dec-2013
 First published version.
 
@@ -129,7 +134,7 @@ First published version.
 Started development.
 
 ==============================================================================
-Copyright: (C) 2010-2013 Ingo Karkat
+Copyright: (C) 2010-2014 Ingo Karkat
 The VIM LICENSE applies to this plugin; see |copyright|.
 
 Maintainer:	Ingo Karkat <ingo@karkat.de>
