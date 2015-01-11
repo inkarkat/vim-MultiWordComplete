@@ -11,6 +11,9 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.01.011	07-Nov-2014	FIX: Avoid "E121: Undefined variable:
+"				s:isNoMatches" when triggering the completion
+"				for the first time without a valid base.
 "   1.01.010	07-Apr-2014	Make repeat across lines work.
 "				Let CompleteHelper#Repeat#GetPattern() assemble
 "				the repeat pattern.
@@ -172,6 +175,7 @@ function! MultiWordComplete#MultiWordComplete( findstart, base )
 	let s:isNoMatches = empty(l:matches)
 	return l:matches
     else
+	let s:isNoMatches = 1
 	return []
     endif
 endfunction
