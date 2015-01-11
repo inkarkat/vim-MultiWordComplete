@@ -124,8 +124,10 @@ IDEAS						     *MultiWordComplete-ideas*
 HISTORY						   *MultiWordComplete-history*
 
 1.01	RELEASEME
-- Make repeat across lines work. *** You need to update to CompleteHelper.vim
-  (vimscript #3914) version 1.40! ***
+- Make repeat across lines work.
+- FIX: Avoid "E121: Undefined variable: s:isNoMatches" when triggering the
+  completion for the first time without a valid base.
+*** You need to update to CompleteHelper.vim (vimscript #3914) version 1.40! ***
 
 1.00	19-Dec-2013
 First published version.
