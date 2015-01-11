@@ -5,13 +5,13 @@
 "   - Requires Vim 7.0 or higher.
 "   - MultiWordComplete.vim autoload script
 "
-" Copyright: (C) 2010-2012 Ingo Karkat
+" Copyright: (C) 2010-2013 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
-"	008	03-Sep-2012	Add value "b" (other listed buffers) to the
+"   1.00.008	03-Sep-2012	Add value "b" (other listed buffers) to the
 "				plugin's 'complete' option offered by
 "				CompleteHelper.vim 1.20.
 "	007	20-Aug-2012	Split off functions into separate autoload
