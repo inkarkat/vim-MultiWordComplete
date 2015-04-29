@@ -80,6 +80,8 @@ To uninstall, use the |:RmVimball| command.
 DEPENDENCIES				      *MultiWordComplete-dependencies*
 
 - Requires Vim 7.0 or higher.
+- Requires the |ingo-library.vim| plugin (vimscript #4433), version 1.010 or
+  higher.
 - Requires the |CompleteHelper.vim| plugin (vimscript #3914), version 1.40 or
   higher.
 
@@ -89,13 +91,12 @@ CONFIGURATION				     *MultiWordComplete-configuration*
 For a permanent configuration, put the following commands into your |vimrc|:
 
 		 *b:MultiWordComplete_complete* *g:MultiWordComplete_complete*
-Analoguous to the 'complete' option, you can specify which buffers will be
-scanned for completion candidates. Currently, '.' (current buffer), 'w'
-(buffers from other windows), and 'b' (other listed buffers) are supported. >
-    let g:MultiWordComplete_complete = '.,w,b'
-The global setting can be overridden for a particular buffer
-(b:MultiWordComplete_complete).
-
+By default, the 'complete' option controls which buffers will be scanned for
+completion candidates. You can override that either for the entire plugin, or
+only for particular buffers; see |CompleteHelper_complete| for supported
+values. >
+    let g:MultiWordComplete_complete = '.,w,b,u'
+<
 					   *g:MultiWordComplete_FindStartMark*
 To disable the removal of the (mostly useless) completion base when aborting
 with <Esc> while there are no matches: >
@@ -127,7 +128,9 @@ HISTORY						   *MultiWordComplete-history*
 - Make repeat across lines work.
 - FIX: Avoid "E121: Undefined variable: s:isNoMatches" when triggering the
   completion for the first time without a valid base.
-*** You need to update to CompleteHelper.vim (vimscript #3914) version 1.40! ***
+- Remove default g:MultiWordComplete_complete configuration and default to
+  'complete' option value instead.
+  *** You need to update to CompleteHelper.vim (vimscript #3914) version 1.40! ***
 
 1.00	19-Dec-2013
 First published version.
@@ -136,7 +139,7 @@ First published version.
 Started development.
 
 ==============================================================================
-Copyright: (C) 2010-2014 Ingo Karkat
+Copyright: (C) 2010-2015 Ingo Karkat
 The VIM LICENSE applies to this plugin; see |copyright|.
 
 Maintainer:	Ingo Karkat <ingo@karkat.de>
