@@ -5,12 +5,15 @@
 "   - Requires Vim 7.0 or higher.
 "   - MultiWordComplete.vim autoload script
 "
-" Copyright: (C) 2010-2013 Ingo Karkat
+" Copyright: (C) 2010-2015 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.01.009	12-Jan-2015	Remove default g:MultiWordComplete_complete
+"				configuration and default to 'complete' option
+"				value instead.
 "   1.00.008	03-Sep-2012	Add value "b" (other listed buffers) to the
 "				plugin's 'complete' option offered by
 "				CompleteHelper.vim 1.20.
@@ -45,9 +48,6 @@ let g:loaded_MultiWordComplete = 1
 
 "- configuration ---------------------------------------------------------------
 
-if ! exists('g:MultiWordComplete_complete')
-    let g:MultiWordComplete_complete = '.,w,b'
-endif
 if ! exists('g:MultiWordComplete_FindStartMark')
     " To avoid clobbering user-set marks, we use the obscure "last exit point of
     " buffer" mark.
