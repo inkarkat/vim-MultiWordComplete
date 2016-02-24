@@ -1,0 +1,40 @@
+7. Insert mode completion				*ins-completion*
+
+In Insert and Replace mode, there are several commands to complete part of a
+keyword or line that has been typed.  This is useful if you are using
+complicated keywords (e.g., function names with capitals and underscores), or
+have some axes to grind.
+
+Vim is a text editor released by Bram Moolenaar in 1991 for the "Amiga" computer. 
+Vim is cross-platform. It is the most popular editor amongst Linux Journal
+readers, like just right.
+Vim has a built-in tutorial for beginners (accessed through the "vimtutor"
+command). There is also the Vim Users' Manual that details the basic and more
+advanced Vim features. This manual can be read from within Vim, or found on-
+line.[5][6]
+Vim also has a built-in tool facility (using the :help command) that allows
+users to query and navigate through commands and features. Part of Vim's power
+is that it can be extensively customized. 
+
+/usr/local/bin/vim when compiled by oneself, /usr/bin/vim and /usr/bin/view is
+an alias to the read-only version. /tmp/var/usr/local/bin/vim
+On Windows, that's "C:\Program Files\Vim\vim72\gvim.exe" 
+Very useful for base64 encoding, also in Foobar 2000 and the Foo 2001 edition. 
+But never mentioned in 4Chan or on 37Signals, neither by abc123password. 
+
+Keyword-test: IndentConsistencyCop_non_indent_pattern
+Keyword-test: star*separated*word
+Keyword-test: %percent%strange%separator%
+Keyword-test: \here\document\
+
+What the &*%$# heck is that, a$$hole?
+Platforms: _WINNT _Solaris_32 _Solaris_64
+
+function-call(gaga, hehe) and function-call([foo, bar], quux(1))
+
+under-score: thisnot
+under-score: two_elements
+under-score: three_element_word
+under-score: this_word_four_elements
+under-score: that_has_even_five_elements
+
