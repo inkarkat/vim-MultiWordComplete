@@ -11,6 +11,8 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.01.010	30-Apr-2015	Remove superfluous duplicate :imap for default
+"				mapping.
 "   1.01.009	12-Jan-2015	Remove default g:MultiWordComplete_complete
 "				configuration and default to 'complete' option
 "				value instead.
@@ -62,7 +64,6 @@ endif
 inoremap <silent> <Plug>(MultiWordPostComplete) <C-r>=MultiWordComplete#RemoveBaseKeys()<CR>
 inoremap <silent> <expr> <Plug>(MultiWordComplete) MultiWordComplete#Expr()
 if ! hasmapto('<Plug>(MultiWordComplete)', 'i')
-    imap <C-x>w <Plug>(MultiWordComplete)
     execute 'imap <C-x>w <Plug>(MultiWordComplete)' . (empty(g:MultiWordComplete_FindStartMark) ? '' : '<Plug>(MultiWordPostComplete)')
 endif
 
