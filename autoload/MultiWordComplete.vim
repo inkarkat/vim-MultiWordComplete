@@ -4,13 +4,17 @@
 " DEPENDENCIES:
 "   - CompleteHelper.vim autoload script
 "   - CompleteHelper/Repeat.vim autoload script
+"   - ingo/plugin/setting.vim autoload script
 "
-" Copyright: (C) 2010-2014 Ingo Karkat
+" Copyright: (C) 2010-2015 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.01.012	12-Jan-2015	Remove default g:MultiWordComplete_complete
+"				configuration and default to 'complete' option
+"				value instead.
 "   1.01.011	07-Nov-2014	FIX: Avoid "E121: Undefined variable:
 "				s:isNoMatches" when triggering the completion
 "				for the first time without a valid base.
@@ -52,7 +56,7 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 function! s:GetCompleteOption()
-    return (exists('b:MultiWordComplete_complete') ? b:MultiWordComplete_complete : g:MultiWordComplete_complete)
+    return ingo#plugin#setting#GetBufferLocal('MultiWordComplete_complete', &complete)
 endfunction
 
 function! s:IsAlpha( expr )
