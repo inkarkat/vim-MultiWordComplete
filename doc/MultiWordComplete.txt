@@ -130,6 +130,7 @@ HISTORY						   *MultiWordComplete-history*
   completion for the first time without a valid base.
 - Remove default g:MultiWordComplete_complete configuration and default to
   'complete' option value instead.
+- Remove superfluous duplicate :imap for default mapping.
   *** You need to update to CompleteHelper.vim (vimscript #3914) version 1.40! ***
 
 1.00	19-Dec-2013
