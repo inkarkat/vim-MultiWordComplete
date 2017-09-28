@@ -25,11 +25,11 @@ completes to "/usr/local/bin".
 
 SEE ALSO								     *
 
-- CamelCaseComplete (vimscript #3915) provides a similar completion, but the
-  anchor characters must be the start fragments of CamelCaseWords or
+- CamelCaseComplete.vim (vimscript #3915) provides a similar completion, but
+  the anchor characters must be the start fragments of CamelCaseWords or
   underscore_words.
-- CustomKeywordComplete (vimscript #0000) provides a similar completion with
-  arbitrary anchors inside a single word.
+- CustomKeywordComplete.vim (vimscript #0000) provides a similar completion
+  with arbitrary anchors inside a single word.
 - Check out the |CompleteHelper.vim| plugin page (vimscript #3914) for a full
   list of insert mode completions powered by it.
 
@@ -140,7 +140,7 @@ First published version.
 Started development.
 
 ==============================================================================
-Copyright: (C) 2010-2015 Ingo Karkat
+Copyright: (C) 2010-2017 Ingo Karkat
 The VIM LICENSE applies to this plugin; see |copyright|.
 
 Maintainer:	Ingo Karkat <ingo@karkat.de>
