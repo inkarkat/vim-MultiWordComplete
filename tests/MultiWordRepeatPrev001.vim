@@ -6,6 +6,7 @@ view MultiWordComplete.txt
 new
 
 call SetCompletion("\<C-x>w")
+call SetCompleteExpr('MultiWordComplete#Expr')
 
 call InsertRepeat('Viater', 0, 0, 0, 0)
 call InsertRepeat('bi', 0, 1, 0, 0)
