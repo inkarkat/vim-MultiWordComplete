@@ -1,8 +1,9 @@
-" Test: Keyword delimiting.
+" Test: Keyword delimiting of next match.
 
 " Keep the completion base when no matches here.
 let g:MultiWordComplete_FindStartMark = ''
 
+let g:CompleteHelper_IsDefaultToBackwardSearch = 0
 source ../helpers/insert.vim
 view MultiWordComplete.txt
 new
