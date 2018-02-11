@@ -1,7 +1,7 @@
 " Test repeat of previous MultiWord completion.
 
 let g:CompleteHelper_IsDefaultToBackwardSearch = 1
-source ../helpers/insert.vim
+runtime tests/helpers/insert.vim
 view MultiWordComplete.txt
 new
 
