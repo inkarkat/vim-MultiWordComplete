@@ -1,7 +1,7 @@
 " Test: Insertion of next MultiWord words.
 
 let g:CompleteHelper_IsDefaultToBackwardSearch = 0
-source ../helpers/insert.vim
+runtime tests/helpers/insert.vim
 view MultiWordComplete.txt
 new
 
