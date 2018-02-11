@@ -1,5 +1,6 @@
-" Test: Insertion of MultiWord words. 
+" Test: Insertion of next MultiWord words.
 
+let g:CompleteHelper_IsDefaultToBackwardSearch = 0
 source ../helpers/insert.vim
 view MultiWordComplete.txt
 new
@@ -23,4 +24,3 @@ call Insert('trov', 0)
 
 call vimtest#SaveOut()
 call vimtest#Quit()
-
