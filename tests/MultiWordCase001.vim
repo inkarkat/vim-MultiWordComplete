@@ -1,8 +1,8 @@
-" Test: Fallback to case-insensitive anchors. 
+" Test: Fallback to case-insensitive anchors.
 
-source ../helpers/completetest.vim
+runtime tests/helpers/completetest.vim
 call vimtest#StartTap()
-call vimtap#Plan(15) 
+call vimtap#Plan(15)
 edit MultiWordComplete.txt
 
 set completefunc=MultiWordComplete#MultiWordComplete
@@ -22,11 +22,10 @@ call IsMatchesInIsolatedLine('lJr', ['like just right', 'Linux Journal readers']
 call IsMatchesInIsolatedLine('LJR', ['like just right', 'Linux Journal readers'], 'LJR case-insensitive')
 
 setlocal ignorecase smartcase
-call IsMatchesInIsolatedLine('xjr', [], 'xjr smartcase') " No need to do the case-insensitive fallback search here. 
+call IsMatchesInIsolatedLine('xjr', [], 'xjr smartcase') " No need to do the case-insensitive fallback search here.
 call IsMatchesInIsolatedLine('ljr', ['like just right', 'Linux Journal readers'], 'ljr smartcase')
 call IsMatchesInIsolatedLine('LJr', ['Linux Journal readers'], 'LJr smartcase')
 call IsMatchesInIsolatedLine('lJr', ['like just right', 'Linux Journal readers'], 'lJr smartcase')
 call IsMatchesInIsolatedLine('LJR', ['like just right', 'Linux Journal readers'], 'LJR smartcase')
 
 call vimtest#Quit()
-
