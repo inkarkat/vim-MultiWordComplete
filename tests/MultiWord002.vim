@@ -1,8 +1,8 @@
-" Test: Completion with non-alphabetic keyword anchors inside words. 
+" Test: Completion with non-alphabetic keyword anchors inside words.
 
-source ../helpers/completetest.vim
+runtime tests/helpers/completetest.vim
 call vimtest#StartTap()
-call vimtap#Plan(15) 
+call vimtap#Plan(15)
 edit MultiWordComplete.txt
 
 set completefunc=MultiWordComplete#MultiWordComplete
@@ -26,4 +26,3 @@ call IsMatchesInIsolatedLine('u-s_t___f', [], 'u-s_t___f isk+=-')
 call IsMatchesInIsolatedLine('u-s-t___f', [], 'u-s-t___f isk+=-')
 
 call vimtest#Quit()
-
