@@ -1,8 +1,8 @@
-" Test: Completion with number anchors. 
+" Test: Completion with number anchors.
 
-source ../helpers/completetest.vim
+runtime tests/helpers/completetest.vim
 call vimtest#StartTap()
-call vimtap#Plan(12) 
+call vimtap#Plan(12)
 edit MultiWordComplete.txt
 
 set completefunc=MultiWordComplete#MultiWordComplete
@@ -22,4 +22,3 @@ call IsMatchesInIsolatedLine('4', ['4Chan'], '4 matches start of word')
 call IsMatchesInIsolatedLine('i4', ['in 4Chan'], 'i4: 4 matches start of word')
 
 call vimtest#Quit()
-
