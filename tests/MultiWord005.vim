@@ -1,8 +1,8 @@
-" Test: Completion over multiple lines. 
+" Test: Completion over multiple lines.
 
-source ../helpers/completetest.vim
+runtime tests/helpers/completetest.vim
 call vimtest#StartTap()
-call vimtap#Plan(3) 
+call vimtap#Plan(3)
 edit MultiWordComplete.txt
 
 set completefunc=MultiWordComplete#MultiWordComplete
@@ -12,4 +12,3 @@ call IsMatchesInIsolatedLine('attvc', ['accessed through the "vimtutor" command'
 call IsMatchesInIsolatedLine('atgV', ['axes to grind. Vim'], 'atgV')
 
 call vimtest#Quit()
-
