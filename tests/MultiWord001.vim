@@ -1,8 +1,8 @@
-" Test: Completion of multiple words. 
+" Test: Completion of multiple words.
 
-source ../helpers/completetest.vim
+runtime tests/helpers/completetest.vim
 call vimtest#StartTap()
-call vimtap#Plan(10) 
+call vimtap#Plan(10)
 edit MultiWordComplete.txt
 
 set completefunc=MultiWordComplete#MultiWordComplete
@@ -22,4 +22,3 @@ call IsMatchesInContext('/', '/gvim', 'ulb', ['usr/local/bin'], 'filespec match 
 " call IsMatchesInIsolatedLine('', [''], '')
 
 call vimtest#Quit()
-
