@@ -1,6 +1,6 @@
 " Test repeat of MultiWord completion across lines.
 
-source ../helpers/insert.vim
+runtime tests/helpers/insert.vim
 view MultiWordComplete.txt
 new
 
