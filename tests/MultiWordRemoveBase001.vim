@@ -1,7 +1,7 @@
-" Test: Removal of MultiWord base when no match. 
+" Test: Removal of MultiWord base when no match.
 
 let g:MultiWordComplete_FindStartMark = 'z'
-source ../helpers/insert.vim
+runtime tests/helpers/insert.vim
 view MultiWordComplete.txt
 new
 
@@ -21,4 +21,3 @@ call Insert('no match:Viaks', 0)
 
 call vimtest#SaveOut()
 call vimtest#Quit()
-
