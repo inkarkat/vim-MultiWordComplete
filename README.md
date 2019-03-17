@@ -121,7 +121,7 @@ below).
 HISTORY
 ------------------------------------------------------------------------------
 
-##### 1.01    RELEASEME
+##### 1.01    17-Mar-2019
 - Make repeat across lines work.
 - FIX: Avoid "E121: Undefined variable: s:isNoMatches" when triggering the
   completion for the first time without a valid base.
