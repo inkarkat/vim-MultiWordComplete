@@ -77,7 +77,7 @@ To uninstall, use the :RmVimball command.
 ### DEPENDENCIES
 
 - Requires Vim 7.0 or higher.
-- Requires the ingo-library.vim plugin ([vimscript #4433](http://www.vim.org/scripts/script.php?script_id=4433)), version 1.010 or
+- Requires the ingo-library.vim plugin ([vimscript #4433](http://www.vim.org/scripts/script.php?script_id=4433)), version 1.037 or
   higher.
 - Requires the CompleteHelper.vim plugin ([vimscript #3914](http://www.vim.org/scripts/script.php?script_id=3914)), version 1.40 or
   higher.
@@ -95,12 +95,12 @@ values.
     let g:MultiWordComplete_complete = '.,w,b,u'
 
 To disable the removal of the (mostly useless) completion base when aborting
-with <Esc> while there are no matches:
+with &lt;Esc&gt; while there are no matches:
 
     let g:MultiWordComplete_FindStartMark = ''
 
 If you want to use a different mapping, map your keys to the
-<Plug>(MultiWordComplete) mapping target _before_ sourcing the script (e.g.
+&lt;Plug&gt;(MultiWordComplete) mapping target _before_ sourcing the script (e.g.
 in your vimrc):
 
     imap <C-x>w <Plug>(MultiWordComplete)<Plug>(MultiWordPostComplete)
@@ -120,6 +120,11 @@ below).
 
 HISTORY
 ------------------------------------------------------------------------------
+
+##### 1.02    RELEASEME
+-
+
+__You need to update to ingo-library ([vimscript #4433](http://www.vim.org/scripts/script.php?script_id=4433)) version 1.037!__
 
 ##### 1.01    17-Mar-2019
 - Make repeat across lines work.
@@ -141,4 +146,4 @@ __You need to update to CompleteHelper.vim ([vimscript #3914](http://www.vim.org
 Copyright: (C) 2010-2019 Ingo Karkat -
 The [VIM LICENSE](http://vimdoc.sourceforge.net/htmldoc/uganda.html#license) applies to this plugin.
 
-Maintainer:     Ingo Karkat <ingo@karkat.de>
+Maintainer:     Ingo Karkat &lt;ingo@karkat.de&gt;

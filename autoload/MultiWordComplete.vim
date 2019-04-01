@@ -111,7 +111,7 @@ function! MultiWordComplete#MultiWordComplete( findstart, base )
 	if ! empty(g:MultiWordComplete_FindStartMark)
 	    " Record the position of the start of the completion base to allow
 	    " removal of the completion base if no matches were found.
-	    let l:findstart = [0, line('.'), l:startCol, 0]
+	    let l:findstart = ingo#pos#Make4(line('.'), l:startCol)
 	    call setpos(printf("'%s", g:MultiWordComplete_FindStartMark), l:findstart)
 	endif
 
